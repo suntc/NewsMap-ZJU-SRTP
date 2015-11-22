@@ -53,7 +53,7 @@ function mapInit() {
 
 $('#submit').click(function(evt) {
 	var input = $('#input').val();
-	$.post('', input, function(data, status) {
+	$.post('/parse/', input, function(data, status) {
 		myLayer.setGeoJSON(data);
 		myLayer.on('mouseover', function(evt) {
 		    evt.layer.openPopup();
