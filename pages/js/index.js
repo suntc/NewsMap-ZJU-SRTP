@@ -1,8 +1,9 @@
-var map = NULL;
-var myLayer = NULL;
+var map = null;
+var myLayer = null;
 
 $(document).ready(function () {
 	mapInit();
+	$('#submit').bind("click", marker_gen);
 });
 
 function mapInit() {
@@ -51,15 +52,23 @@ function mapInit() {
 	});*/
 }
 
-$('#submit').click(function(evt) {
+function marker_gen(evt) {
+	evt.preventDefault();
 	var input = $('#input').val();
-	$.post('/parse/', input, function(data, status) {
-		myLayer.setGeoJSON(data);
-		myLayer.on('mouseover', function(evt) {
-		    evt.layer.openPopup();
-		});
-		myLayer.on('mouseout', function(evt) {
-		    evt.layer.closePopup();
-		});
+	alert(input);
+	$.ajax({
+		type	: 'GET',
+		url		: '/parse/',
+		data	: input,
+		success	: function(data) {
+			alert(data);
+			myLayer.setGeoJSON(data);
+			myLayer.on('mouseover', function(evt) {
+			    evt.layer.openPopup();
+			});
+			myLayer.on('mouseout', function(evt) {
+			    evt.layer.closePopup();
+			});
+		}
 	});
-});
+}
