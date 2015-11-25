@@ -13,8 +13,8 @@ def index(request):
     return render_to_response("index.html")
 
 def parse(request):
-    if "content" in request.GET and request.GET["content"]:
-        content = request.GET["content"]
+    if "input" in request.GET and request.GET["input"]:
+        content = request.GET["input"]
         opencalaisdic = opencalaisParse(content)
         geodic = {}
         geodic.setdefault('type','FeatureCollection')
@@ -30,6 +30,8 @@ def parse(request):
             featuredic['properties']['title'] = key
             featuredic['properties']['marker-color'] = '#f86767'
             featuredic['properties']['marker-size'] = 'large'
+            featuredic['properties']['description'] = opencalaisdic[key]['description']
+            featuredic['properties']['exacts'] = opencalaisdic[key]['exacts']
             featuredic.setdefault('geometry',{})
             featuredic['geometry']['type'] = 'Point'
             featuredic['geometry']['coordinates'] = opencalaisdic[key]['coordinates']

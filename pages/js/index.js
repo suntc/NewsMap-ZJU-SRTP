@@ -10,7 +10,7 @@ function mapInit() {
 	// Provide your access token
 	L.mapbox.accessToken = 'pk.eyJ1Ijoic3VudGMiLCJhIjoiY2lnbHd2bm9lMDE3ZnRjbTN6NmFocW40ZiJ9.a4zXk7vRisoIJ4KT-CukXA';
 	// Create a map in the div #map
-	map = L.mapbox.map('map', 'mapbox.streets');
+	map = L.mapbox.map('map', 'mapbox.streets').setView([37.9, -77],4);
 	myLayer = L.mapbox.featureLayer().addTo(map);
 	/*var geojson = {
 	    type: 'FeatureCollection',
@@ -54,12 +54,12 @@ function mapInit() {
 
 function marker_gen(evt) {
 	evt.preventDefault();
-	var input = $('#input').val();
-	alert(input);
+	var querydict = {};
+	querydict["input"] = $('#input').val();
 	$.ajax({
 		type	: 'GET',
 		url		: '/parse/',
-		data	: input,
+		data	: querydict,
 		success	: function(data) {
 			alert(data);
 			myLayer.setGeoJSON(data);
