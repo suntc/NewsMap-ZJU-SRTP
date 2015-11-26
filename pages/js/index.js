@@ -1,5 +1,6 @@
 var map = null;
 var myLayer = null;
+var querydict = {};
 
 $(document).ready(function () {
 	mapInit();
@@ -54,14 +55,13 @@ function mapInit() {
 
 function marker_gen(evt) {
 	evt.preventDefault();
-	var querydict = {};
 	querydict["input"] = $('#input').val();
 	$.ajax({
 		type	: 'GET',
 		url		: '/parse/',
 		data	: querydict,
 		success	: function(data) {
-			alert(data);
+			//alert(data);
 			myLayer.setGeoJSON(data);
 			myLayer.on('mouseover', function(evt) {
 			    evt.layer.openPopup();
@@ -69,6 +69,10 @@ function marker_gen(evt) {
 			myLayer.on('mouseout', function(evt) {
 			    evt.layer.closePopup();
 			});
+			for(var i = 0; i < data.exact.length; ++i) {
+				querydict["input"].replace(data.exact[i], "<span style='color:#EF0FFF;'>" + data.exact[i] + "</span>");
+			}
+			$('display').html(querydict["input"]);
 		}
 	});
 }
