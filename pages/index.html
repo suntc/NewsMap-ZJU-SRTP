@@ -10,15 +10,19 @@
 		<link href='https://api.mapbox.com/mapbox.js/v2.2.3/mapbox.css' rel='stylesheet' />
 		<style>
 			body { margin:0; padding:0; }
-			#map { position:absolute; top:0; bottom:0; width:100%; }
-			#input-form { position:absolute; right:40px; bottom:40px }
+			#map { position:absolute; top:0; bottom:30%; width:100%; }
+			#input-form { position:absolute; height:26%; left:0; bottom:0; width:46%; margin:2%; }
+			#input { height:80%; width:100%; }
+			#submit {  }
+			#display { position:absolute; height:26%; right:0; bottom:0; width:46%; margin:2%; }
 		</style>
 	</head>
 	<body>
 		<div id="map"></div>
 		<div id="input-form">
-			<input id="input" type="text">
+			<textarea id="input"></textarea>
 			<input id="submit" type="button" value="Parse">
 		</div>
+		<div id="display"></div>
 	</body>
 </html>
