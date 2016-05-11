@@ -3,26 +3,84 @@
 	<head>
 		<meta charset=utf-8 />
 		<title>News Map - ZJU SRTP</title>
-		<meta name='viewport' content='initial-scale=1,maximum-scale=1,user-scalable=no' />
+		<meta name="viewport" content="initial-scale=1,maximum-scale=1,user-scalable=no" />
 		<script src="http://ajax.googleapis.com/ajax/libs/jquery/1/jquery.min.js"></script>
-		<script src='https://api.mapbox.com/mapbox.js/v2.2.3/mapbox.js'></script>
-		<script src='/static/index.js'></script>
-		<link href='https://api.mapbox.com/mapbox.js/v2.2.3/mapbox.css' rel='stylesheet' />
-		<style>
-			body { margin:0; padding:0; }
-			#map { position:absolute; top:0; bottom:30%; width:100%; }
-			#input-form { position:absolute; height:26%; left:0; bottom:0; width:46%; margin:2%; }
-			#input { height:80%; width:100%; }
-			#submit {  }
-			#display { position:absolute; height:26%; right:0; bottom:0; width:46%; margin:2%; }
-		</style>
+		<script src="https://api.mapbox.com/mapbox.js/v2.2.3/mapbox.js"></script>
+		<script src="index.js"></script>
+		<link href="https://api.mapbox.com/mapbox.js/v2.2.3/mapbox.css" rel="stylesheet" />
+
+		<link href="style.css" rel="stylesheet" type="text/css" />
+		<script src="style.js" type="text/javascript"></script>
 	</head>
 	<body>
-		<div id="map"></div>
-		<div id="input-form">
-			<textarea id="input"></textarea>
-			<input id="submit" type="button" value="Parse">
+		<div id="container">
+			<div class="container-elements">
+				<input id="url-input"></input>
+				<input id="submit" type="button" value="Submit"></input>
+			</div>
+
+			<div class="container-elements">
+				<div id="map-area">
+					<div class="selectors-sets">
+						<div class="selectors btn" value="normal">普通</div>
+						<div class="selectors btn" value="type2">类型1</div>
+						<div class="selectors btn" value="type3">类型2</div>
+					</div>
+					<div id="map"></div>
+				</div>
+				<div id="statics-area">
+					<div class="selectors-sets">
+						<div class="selectors btn" value="normal">普通</div>
+						<div class="selectors btn" value="type2">类型1</div>
+						<div class="selectors btn" value="type3">类型2</div>
+					</div>
+					<div class="tabs-sets">
+						<div class="tabs" value="normal">普通</div>
+						<div class="tabs" value="type2">类型1</div>
+						<div class="tabs" value="type3">类型2</div>
+					</div>
+				</div>
+			</div>
+
+			<div class="container-elements">
+				<div id="article-area">
+					<div id="display"></div>
+				</div>
+				<div id="news-area">
+					<div class="selectors-sets">
+						<div class="selectors btn" value="normal">普通</div>
+						<div class="selectors btn" value="type2">类型1</div>
+						<div class="selectors btn" value="type3">类型2</div>
+					</div>
+					<div class="tabs-sets">
+						<div class="tabs" value="normal">
+							<div class="news-items">
+								<div class="news-pics"></div>
+								<div class="news-contents">
+									<div class="news-titles">这是标题</div>
+									<div class="news-briefs">这是一段文字简介。这是一段文字简介。这是一段文字简介。这是一段文字简介。这是一段文字简介。这是一段文字简介。这是一段文字简介。</div>
+								</div>
+							</div>
+							<div class="news-items">
+								<div class="news-pics"></div>
+								<div class="news-contents">
+									<div class="news-titles">这是标题</div>
+									<div class="news-briefs">这是一段文字简介。这是一段文字简介。这是一段文字简介。这是一段文字简介。这是一段文字简介。这是一段文字简介。这是一段文字简介。</div>
+								</div>
+							</div>
+							<div class="news-items">
+								<div class="news-pics"></div>
+								<div class="news-contents">
+									<div class="news-titles">这是标题</div>
+									<div class="news-briefs">这是一段文字简介。这是一段文字简介。这是一段文字简介。这是一段文字简介。这是一段文字简介。这是一段文字简介。这是一段文字简介。</div>
+								</div>
+							</div>
+						</div>
+						<div class="tabs" value="type2">类型1</div>
+						<div class="tabs" value="type3">类型2</div>
+					</div>
+				</div>
+			</div>
 		</div>
-		<div id="display"></div>
 	</body>
 </html>
