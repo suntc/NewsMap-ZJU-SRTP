@@ -69,8 +69,11 @@ function marker_gen(evt) {
 			myLayer.on('mouseout', function(evt) {
 			    evt.layer.closePopup();
 			});
-			for(var i = 0; i < data.exact.length; ++i) {
-				querydict["input"].replace(data.exact[i], "<span style='color:#EF0FFF;'>" + data.exact[i] + "</span>");
+			for(var i = 0; i < data.features.length; ++i) {
+				for (var j = 0; j < data.features[i].properties.exacts.length; ++j)
+				{
+					querydict["input"] = querydict["input"].replace(data.features[i].properties.exacts[j], "<span style='color:#EF0FFF;'>" + data.features[i].properties.exacts[j] + "</span>");
+				}
 			}
 			$('display').html(querydict["input"]);
 		}
