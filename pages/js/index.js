@@ -88,16 +88,16 @@ function recommend()
 		return;
 	btnType = $(this).attr('value')
 	rectype = "null";
-	if (btnType == 'normal' && newsStatics.recNews.general == undefined){
+	if (btnType == 'general' && newsStatics.recNews.general == undefined){
 		rectype = "general";
 	}
-	else if (btnType == 'type2' && newsStatics.recNews.location == undefined){
+	else if (btnType == 'location' && newsStatics.recNews.location == undefined){
 		rectype = "location";
 	}
-	else if (btnType == 'type3' && newsStatics.recNews.entity == undefined){
+	else if (btnType == 'entity' && newsStatics.recNews.entity == undefined){
 		rectype = "entity";
 	}
-	else if (btnType == 'type4' && newsStatics.recNews.topic == undefined){
+	else if (btnType == 'topic' && newsStatics.recNews.topic == undefined){
 		rectype = "topic";
 	}
 		
@@ -115,21 +115,21 @@ function recommend()
 			else if (rectype == 'location'){
 				newsStatics.recNews.location = data;
 				for (i = 0; i < data.length; ++i){
-					$("#news-area .tabs[value='type2']").append(appendArticle(data[i]));
+					$("#news-area .tabs[value='location']").append(appendArticle(data[i]));
 					alert("ok");
 				}
 			}
 			else if (rectype == 'entity'){
 				newsStatics.recNews.entity = data;
 				for (i = 0; i < data.length; ++i){
-					$("#news-area .tabs[value='type3']").append(appendArticle(data[i]));
+					$("#news-area .tabs[value='entity']").append(appendArticle(data[i]));
 					alert("ok");
 				}
 			}
 			else if (rectype == 'topic'){
 				newsStatics.recNews.topic = data;
 				for (i = 0; i < data.length; ++i){
-					$("#news-area .tabs[value='type4']").append(appendArticle(data[i]));
+					$("#news-area .tabs[value='topic']").append(appendArticle(data[i]));
 					alert("ok");
 				}
 			}
