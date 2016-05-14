@@ -77,6 +77,11 @@ function appendArticle(art)
 	var text = $("<div></div>").attr("class","news-briefs").text(art.text);
 	var source = $("<div></div>").attr("class","news-source").text(art.source);
 	var pubdate = $("<div></div>").attr("class","news-pubdate").text(art.pub_date);
+
+	if (text.length() > 160) {
+		text = text.substring(0, 160) + "...";
+	}
+	
 	content.append(title).append(text);
 	item.append(pic).append(content);
 	return item;

@@ -113,8 +113,15 @@
 	font-size: 1rem;
 	line-height: 1rem;
 	font-weight: bold;
+	float: left;
+}
+.news-dates {
+	font-size: 1rem;
+	line-height: 1rem;
+	float: right;
 }
 .news-briefs {
 	font-size: 0.8rem;
 	line-height: 0.8rem;
+	clear: both;
 }
