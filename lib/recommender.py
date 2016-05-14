@@ -26,7 +26,7 @@ class recommender:
 		self.infodict_list = []
 		self.ranks = {}
 		self.target = {}
-		self.prepared = False
+		self.prepared_url = ""
 		'''
 		infodict_list contains dicts like {"url":,"calais_info":,"bog":,"location":,"entity":,"social_tag":,"topic":,...}
 		'''
@@ -37,8 +37,9 @@ class recommender:
 			  select url,calais from newspaper
 			  where (section = 'US news' or section = 'U.S.')
 			  and calais is not null
-			  limit 8000
+			  limit 500
 			  """
+		# limit 1000 for test! 
 		cur.execute(sql)
 		fetchRes = cur.fetchall()
 		for i in fetchRes:
@@ -96,6 +97,8 @@ class recommender:
 		a generalized method, high coupling
 		run once for each article
 		'''
+		if url == self.prepared_url:
+			return
 		t = {}
 		t["url"] = url
 		t["calais_info"] = calais_info
@@ -105,15 +108,15 @@ class recommender:
 		self.rank_by("entity")
 		self.rank_by("social_tag")
 		self.rank_by("topic")
-		self.prepared = True
+		self.prepared_url = url
 
-	def recommend(self,weight,fetch=20):
+	def recommend(self,url,weight,fetch=20):
 		'''
 		a generalized method, high coupling
 		should run self.prepare() first
 		different results for different weight
 		'''
-		if not self.prepared:
+		if url != self.prepared_url:
 			raise Exception("should run recommender.prepare(url,calais_info) first")
 		import psycopg2
 		import calendar
@@ -154,8 +157,9 @@ class recommender:
 					count += 1
 					if count == 3: # choose the first 3 paras as preview
 						break
+			rec_info[url]["text"] = rec_info[url]["text"].strip('\n')
 			if pub_date != None:
-				rec_info[url]["pub_date"] = str(pub_date.date) + ' ' + calendar.month_abbr[pub_date.month] + ', ' + str(pub_date.year)
+				rec_info[url]["pub_date"] = str(pub_date.day) + ' ' + calendar.month_abbr[pub_date.month] + ', ' + str(pub_date.year)
 			if source != None:
 				rec_info[url]["source"] = source
 		rec_list = [rec_info[url] for url in rec_urls]

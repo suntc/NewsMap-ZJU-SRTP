@@ -5,12 +5,15 @@ Created on 2016-04-30
 '''
 from django.shortcuts    import render_to_response
 from django.http import HttpResponse
+from django.views.decorators.csrf import csrf_exempt
 import json
+import calendar
 from newspaper import Article
 #from lib.buildcalais import calais_api # originated from python/infoextract/buildcalais.py
 #from lib.recommender import recommender
 #from lib.wikicat import sparqlquerier
 import sys
+from django.contrib.sessions.models import Session
 sys.path.append("../infoextract/")
 from recommender import recommender
 from wikicat import sparqlquerier
@@ -19,9 +22,11 @@ from ontologystatistics import ontstats
 from thememap import mapdict
 
 rec = recommender()
+print("load recommender...")
 rec.load_db()
+print("done")
 stat = ontstats()
-stat.load()
+#stat.load()
 mapdict = mapdict()
 
 
@@ -30,15 +35,39 @@ def index(request):
 
 def parse(request):
 	if "input" in request.GET and request.GET["input"]:
-		content = request.GET["input"]
-		print(content)
-	(title, text, date, image) = extract(content)
+		url = request.GET["input"]
+		print(url)
+	article = {}
+	(article['title'], article['text'], pdate, article['image']) = extract(url)
+	if (pdate != None):
+		article["date"] = str(pdate.day) + ' ' + calendar.month_abbr[pdate.month] + ', ' + str(pdate.year)
+	else:
+		article["date"] = "null"
+	request.session['url'] = url
+	request.session['content'] = article['text']
+	response = HttpResponse(json.dumps(article, ensure_ascii = False),"application/json");
+	'''	
 	info = calais_info(text)
 	(w_list, lc_list, en_list, tp_list) = rec_news(content,info)
-	response = HttpResponse(json.dumps({"hehe":123}, ensure_ascii = False),"application/json");
 	maps = gen_map(info)
+	'''
 	return response
 
+@csrf_exempt
+def recommend(request):
+	if "type" in request.POST and request.POST["type"]:
+		type = request.POST["type"]
+		print(type)
+	#print(request.session['content'])
+	print("query calais info...")
+	info = calais_info(request.session['content'])
+	print("done")
+	request.session['info'] = info
+	l = rec_news(request.session['url'],info,type)
+	response = HttpResponse(json.dumps(l, ensure_ascii = False),"application/json");
+	return response
+	
+	
 def extract(u):
 	article = Article(url=u)
 	article.download()
@@ -55,17 +84,22 @@ def calais_info(text):
 	info = cls.filter(result) # dict: info = {"socialTag":[], "topic":[], "entity":[], "location":[]}
 	return info
 
-def rec_news(url,cinfo):
+def rec_news(url,cinfo,type):
+	print("recommend: 4 similarities and 4 sorts...")
 	rec.prepare(url,cinfo)
+	print("done")
 	g_w = {"location":1,"entity":0.8,"social_tag":1.2,"topic":1}
 	lc_w = {"location":1,"entity":0,"social_tag":0,"topic":0}
 	en_w = {"location":0,"entity":1,"social_tag":0,"topic":0}
 	tp_w = {"location":0,"entity":0,"social_tag":0.5,"topic":1}
-	w_list = rec.recommend(g_w)
-	lc_list = rec.recommend(lc_w)
-	en_list = rec.recommend(en_w)
-	tp_list = rec.recommend(tp_w)
-	return w_list, lc_list, en_list, tp_list
+	if type == "general":
+		return rec.recommend(url,g_w,fetch=7)
+	elif type == "location":
+		return rec.recommend(url,lc_w,fetch=7)
+	elif type == "entity":
+		return rec.recommend(url,en_w,fetch=7)
+	elif type == "topic":
+		return rec.recommend(url,tp_w,fetch=7)
 
 
 def gen_map(cinfo,fetch=5):
