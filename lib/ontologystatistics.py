@@ -6,34 +6,13 @@ Created on 2016-05-01
 from math import log
 import psycopg2
 import pickle
+from newspaper import Article
 from wikicat import sparqlquerier
 from buildcalais import calais_api
 
 '''
 count the most frequent wikicat and the leaf level of wordnet cat
 ontology : dict that maps wikicat/wncat with count
-'''
-
-text = '''
-Every minute of every day, usually without thinking, thousands of New Yorkers reach across the counter at shops and supermarkets and accept a disposable plastic bag. The city's sanitation department estimates 10 billion bags a year are tossed in the trash — roughly 19,000 per minute.
-Now, city officials are poised to test whether a 5-cent charge can wean New Yorkers from the convenient but environmentally unfriendly sacks.
-City Council approved a bill by a 28-20 vote Thursday afternoon that would require most merchants to charge customers at least a nickel for each bag, including those made of paper. Technically, the fee isn't a tax. Stores will get to keep the money they collect.
-Mayor Bill de Blasio, who has a goal of sending zero waste to landfills by 2030, said he will sign the bill, which would take effect Oct. 1. He said the legislation "strikes the right balance, reducing reliance on single-use bags and incentivizing the use of reusable bags."
-Supporters are hoping the extra charge will force New Yorkers to think twice about accepting a bag and perhaps start bringing their own. And that, they say, might help keep the bags from filling landfills and blowing into trees and waterways — as they do constantly in the city today.
-Some New Yorkers interviewed as they ran errands this week said they weren't so sure how they would adapt, especially in a city where most people are shopping on foot rather than by car.
-"A lot of times I leave work, if I'm on the way home, I don't have time to have a bag with me," said Pat Tomasso, 70, who has a neon sign business.
-Todd Killinger, 47, who works in advertising, said it's a good idea.
-"After a time I think people will switch and bring their own bags but initially not so much," he said.
-New York City joins more than 150 other municipalities around the country that have passed ordinances either to ban single-use plastic bags or to charge a fee for them.
-Puerto Rico's governor signed an order banning plastic bags last fall. There is now a 5-pence charge in Great Britain.
-Officials from Washington, D.C., testified at a New York City Council hearing that their 5-cent bag fee, enacted in 2009, has led to a 60 percent drop in bag use.
-Former New York Mayor Michael Bloomberg first proposed a plastic bag charge in 2008, but the idea failed to attract support from the City Council. The current bill was introduced in 2014 and has been amended to slash the per-bag fee from 10 cents to 5.
-"Everyone knows that plastic bags are a problem," said Councilman Brad Lander, a Brooklyn Democrat and bill sponsor. "They blow everywhere. They never biodegrade. They're made of petroleum. And we don't need them."
-Opponents say the fee essentially amounts to a new tax on a heavily taxed population.
-"I'm tired of my constituents being nickeled-and-dimed all the time," said Councilman Steven Matteo, a Staten Island Republican who planned to vote against the bag fee. "It's going to give my constituents another reason to shop in New Jersey."
-According to the Sanitation Department, New York City spends $12.5 million a year to send plastic bags to landfills and even more to clean them off beaches, parks and other public spaces.
-Lee Califf, executive director of the American Progressive Bag Alliance, accused the City Council of "imposing a new, regressive grocery bag tax that will hurt seniors, working class and low-income New Yorkers while enriching grocers."
-The law will go into effect Oct. 1.
 '''
 
 class ontstats:
@@ -96,13 +75,18 @@ class ontstats:
 			st[tag["name"]] = tag["importance"] # {"Obama Campaign 2012":2,...}
 		return st
 
-	def text_static(self,text):
+	def text_static(self,url):
+		article = Article(url)
+		article.download()
+		article.parse()
+		#return (article.title,article.text,article.publish_date,article.top_image)
 		cls = calais_api()
-		result = cls.query(text)
+		result = cls.query(article.text)
 		cinfo = cls.filter(result) # dict: info = {"socialTag":[], "topic":[], "entity":[], "location":[]}
 		spa = sparqlquerier()
 		st = self.st_importance(cinfo)
 		wcdict = spa.wikicat(list(st.keys()))
+		print(st.keys())
 		wcrank_info = {}
 		for cat in wcdict:
 			if cat in self.ontology:

@@ -4,6 +4,7 @@ var mapWidgets = {
 	info 	: undefined,
 	markers : [],
 	hlwords : {},
+	thememap: {},
 };
 var newsStatics = {
 	url	: undefined,
@@ -30,6 +31,7 @@ function mapInit() {
 	// Provide your access token
 	//L.mapbox.accessToken = 'pk.eyJ1Ijoic3VudGMiLCJhIjoiY2lnbHd2bm9lMDE3ZnRjbTN6NmFocW40ZiJ9.a4zXk7vRisoIJ4KT-CukXA';
 	// Create a map in the div #map
+	selector_selected.call($('#map-area .selectors[value="basicmap"]')[0]);
 	mapWidgets.map = L.map('map').setView([37.8, -96], 4);
 	L.tileLayer('https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token=pk.eyJ1IjoibWFwYm94IiwiYSI6ImNpandmbXliNDBjZWd2M2x6bDk3c2ZtOTkifQ._QA7i5Mpkd_m30IGElHziw', {
 			maxZoom: 18,
@@ -135,6 +137,7 @@ function wordcloud()
 		...
 	}
 	*/
+	selector_selected.call($('#statics-area .selectors[value="wcloud"]')[0]);
 	$.ajax({
 		url		: '/wordcloud/',
 		success	: function(word_array){
@@ -177,11 +180,56 @@ function calcinfo()
 		url		: '/calcinfo/',
 		success	: function(data){
 			basicmap();
+			thememap();
 			wordcloud();
 			recommend("general");
 		}		
 	});
 }
+
+function thememap()
+{
+	$.ajax({
+		url		: '/thememap/',
+		success	: function(data){
+			for (var i = 0; i < data.length; ++i){
+				var button = $("<div></div>").attr("class","selectors btn").attr("value","type" + (i+1)).text("类型"+(i+1));
+				//button[0].onclick = selector_selected;
+				var tab = $("<div></div>").attr("class","tabs").attr("value","type" + (i+1));
+				var m = $("<div></div>").attr("id","type" + (i+1)).css({"width":"100%","height":"444px"});
+				mapWidgets.thememap["type" + (i+1)] = data[i];
+				$("#map-area .selectors-sets").append(button);
+				tab.append(m);
+				$("#map-area .tabs-sets").append(tab);
+				button[0].onclick = genmap;
+			}
+			
+		}		
+	});
+}
+
+function genmap(){
+	/*
+		fetch map's information through $(this).attr('value')
+		which is button's value type2, type3...
+
+	*/
+	mapid = $(this).attr('value');
+	selector_selected.call(this);
+	var tmap = choroplethMap(mapid,mapWidgets.thememap[mapid]);
+	//mapWidgets.thememap.push(tmap);
+	/*
+	var tmap = L.map(mapid).setView([37.8, -96], 4);
+	L.tileLayer('https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token=pk.eyJ1IjoibWFwYm94IiwiYSI6ImNpandmbXliNDBjZWd2M2x6bDk3c2ZtOTkifQ._QA7i5Mpkd_m30IGElHziw', {
+		maxZoom: 18,
+		attribution: 'Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors, ' +
+			'<a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, ' +
+			'Imagery © <a href="http://mapbox.com">Mapbox</a>',
+		id: 'mapbox.streets'
+	}).addTo(tmap);
+*/
+}
+
 
 function recommend()
 {
@@ -268,6 +316,10 @@ function parseArticle(evt)
 		mapWidgets.map.removeLayer(mapWidgets.markers[i]);
 	}
 	mapWidgets.markers = [];
+	mapWidgets.thememap = {};
+	$('#map-area .selectors[value="basicmap"]').siblings().each(function(){$(this).remove()});
+	$('#map-area .tabs[value="basicmap"]').siblings().each(function(){$(this).remove()});
+
 	newsStatics.url = $('#url-input').val();
 	$.ajax({
 		type	: 'GET',

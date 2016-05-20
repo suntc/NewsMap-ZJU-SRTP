@@ -19,6 +19,7 @@ from newspaper import Article
 #from lib.wikicat import sparqlquerier
 import sys
 from django.contrib.sessions.models import Session
+from django.template.context_processors import request
 
 sys.path.append("../infoextract/")
 from recommender import recommender
@@ -32,8 +33,10 @@ rec = recommender()
 print("load recommender...")
 rec.load_db()
 print("done")
+print("load ontology...")
 stat = ontstats()
-#stat.load()
+stat.load()
+print("done")
 mapdict = mapdict()
 cs = calais_stats()
 tokenizer = nltk.data.load('tokenizers/punkt/english.pickle')
@@ -92,6 +95,7 @@ def basicmap(request):
 				markers[item['name']]['position'] = [item['latitude'],item['longitude']]
 				markers[item['name']]['description'] = []
 			except Exception as e:
+				markers.pop(item['name'])
 				continue
 	sentences = tokenizer.tokenize(request.session['content'])
 	for key in markers:
@@ -177,45 +181,45 @@ def rec_news(url,cinfo,type):
 	elif type == "topic":
 		return rec.recommend(url,tp_w,fetch=7)
 
+def thememap(request):
+	tmaps = gen_map(request.session['info'])
+	response = HttpResponse(json.dumps(tmaps, ensure_ascii = False),"application/json");
+	return response
 
-def gen_map(cinfo,fetch=5):
+def gen_map(cinfo,fetch=2):
 	maps = {}
 	wn_stat = {} # (tf,[wikicats,...])
 	spa = sparqlquerier()
 	st = st_importance(cinfo)
+	print("query wikicat...")
 	wcdict = spa.wikicat(list(st.keys())) # wcdict[i["valueOrObject"]["value"]].append(tag) # each wikicat maps a list of socialTag
+	print("done")
 	wcset = set(wcdict.keys())
 	for item in wcset:
 		if item in mapdict.maps:
-			maps[item] = {}
-			'''
-			add other information: mapjson, title, description, numeric info...
-			'''
+			maps[item] = mapdict.maps[item]
 			maps[item]["score"] = []
 			maps[item]["score"].append(1) # wikicat level
 			maps[item]["score"].append(-1) # tfidf, wikicat does not have tfidf yet...
-			maps[item]["score"].append(max([st[tag] for tag in wcdict[item]])) # importance
+			maps[item]["score"].append(max([int(st[tag]) for tag in wcdict[item]])) # importance
 			if item in stat.ontology:
 				maps[item]["score"].append(stat.ontology[item]) # appearance count from corpus
 		if item in stat.taxonomy:
-			wn_stat.setdefault(stat.taxonomy[item],(0,[]))
+			wn_stat.setdefault(stat.taxonomy[item],[0,[]])
 			wn_stat[stat.taxonomy[item]][0] += 1
 			wn_stat[stat.taxonomy[item]][1] += wcdict[item]
 	for item in wn_stat:
 		if item in mapdict.maps:
-			maps[item] = {}
-			'''
-			add other information: mapjson, title, description, numeric info...
-			'''
+			maps[item] = mapdict.maps[item]
 			maps[item]["score"] = []
 			maps[item]["score"].append(0) # wikicat level
 			if item in stat.wn_idf: # tfidf
 				maps[item]["score"].append(wn_stat[item][0] * stat.wn_idf[item])
 			else:
 				maps[item]["score"].append(wn_stat[item][0] * stat.wn_idf["DEFAULT"])
-			maps[item]["score"].append(max([st[tag] for tag in wn_stat[item][1]])) # importance
+			maps[item]["score"].append(max([int(st[tag]) for tag in wn_stat[item][1]])) # importance
 			maps[item]["score"].append(-1) # appearance count, not needed with tf-idf
-	to_rank = [item for item in maps]
+	to_rank = [maps[item] for item in maps]
 	to_rank.sort(key=lambda k:(k["score"][0],k["score"][1],k["score"][2],k["score"][3]),reverse=True)
 	return to_rank[:fetch]
 

@@ -7,6 +7,8 @@
 		<script src="http://ajax.googleapis.com/ajax/libs/jquery/1/jquery.min.js"></script>
 		<script src="/static/index.js"></script>
 		<script src = "/static/wCloud.js"></script>
+		<script src = "/static/customMap.js"></script>
+		<script src = "/static/us-states.js"></script>
 		<script src = "/static/d3.min.js"></script>
 		<link rel="stylesheet" href="http://cdn.leafletjs.com/leaflet/v0.7.7/leaflet.css" />
 		<script src="http://cdn.leafletjs.com/leaflet/v0.7.7/leaflet.js"></script>
@@ -23,24 +25,24 @@
 			<div class="container-elements">
 				<div id="map-area">
 					<div class="selectors-sets">
-						<div class="selectors btn" value="normal">普通</div>
-						<div class="selectors btn" value="type2">类型1</div>
-						<div class="selectors btn" value="type3">类型2</div>
+						<div class="selectors btn" value="basicmap">普通</div>
+						<div class="selectors btn" value="relmap">相关</div>
 					</div>
-					<div id="map"></div>
+					<div class="tabs-sets">
+						<div class="tabs" value="basicmap">
+							<div id="map"></div>
+						</div>
+						<div class="tabs" value="relmap"></div>
+					</div>
 				</div>
 				<div id="statics-area">
 					<div class="selectors-sets">
 						<div class="selectors btn" value="wcloud">keyword</div>
-						<div class="selectors btn" value="type2">类型1</div>
-						<div class="selectors btn" value="type3">类型2</div>
 					</div>
 					<div class="tabs-sets">
 						<div class="tabs" value="wcloud">
 							<svg class="tabs-item" value="wcloud"></svg>
 						</div>
-						<div class="tabs" value="type2">类型1</div>
-						<div class="tabs" value="type3">类型2</div>
 					</div>
 				</div>
 			</div>
