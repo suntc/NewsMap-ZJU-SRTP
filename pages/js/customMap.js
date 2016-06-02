@@ -55,7 +55,23 @@ function choroplethMap(mapid,mapdata)
 	}
 	mids = medians(geovalues);
 	// get color depending on population density value
-	function getColor(d) {
+
+	var getColor;
+	if (mapdata.color == "blue"){
+		getColor = function(d) {
+		return d > mids[0]	 ? '#0000C7' :
+		       d > mids[1] 	 ? '#0039C7' :
+		       d > mids[2] 	 ? '#0077C7' :
+		       d > mids[3]	 ? '#009CC7' :
+		       d > mids[4]   ? '#00C0C7' :
+		       d > mids[5]   ? '#00DEC7' :
+		       d > mids[6]   ? '#00FFC7' :
+		        d > 0        ? '#98F5FF' :
+		                 	   '#CFCFCF';
+		}
+	}
+	else {
+		getColor = function(d) {
 		return d > mids[0]	 ? '#800026' :
 		       d > mids[1] 	 ? '#BD0026' :
 		       d > mids[2] 	 ? '#E31A1C' :
@@ -64,7 +80,9 @@ function choroplethMap(mapid,mapdata)
 		       d > mids[5]   ? '#FEB24C' :
 		       d > mids[6]   ? '#FED976' :
 		                 	   '#FFEDA0';
+		}
 	}
+
 
 	function style(feature) {
 		return {

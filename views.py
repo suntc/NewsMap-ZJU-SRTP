@@ -14,20 +14,15 @@ import calendar
 from math import pow
 
 from newspaper import Article
-#from lib.buildcalais import calais_api # originated from python/infoextract/buildcalais.py
-#from lib.recommender import recommender
-#from lib.wikicat import sparqlquerier
+from lib.buildcalais import calais_api # originated from python/infoextract/buildcalais.py
+from lib.recommender import recommender
+from lib.wikicat import sparqlquerier
+from lib.calaisstats import calais_stats
+from lib.ontologystatistics import ontstats
+from lib.thememap import mapdict
 import sys
 from django.contrib.sessions.models import Session
 from django.template.context_processors import request
-
-sys.path.append("../infoextract/")
-from recommender import recommender
-from wikicat import sparqlquerier
-from buildcalais import calais_api
-from ontologystatistics import ontstats
-from thememap import mapdict
-from calaisstats import calais_stats
 
 rec = recommender()
 print("load recommender...")
@@ -77,11 +72,31 @@ def calcinfo(request):
 @csrf_exempt
 def recommend(request):
 	if "type" in request.POST and request.POST["type"]:
-		type = request.POST["type"]
-		print(type)
+		rectype = request.POST["type"]
+		print(rectype)
 	#print(request.session['content'])
-	l = rec_news(request.session['url'],request.session['info'],type)
-	response = HttpResponse(json.dumps(l, ensure_ascii = False),"application/json");
+	style = "<span style = 'color:#EF0FFF'>"
+	style_end = "</span>"
+	l = rec_news(request.session['url'],request.session['info'],rectype)
+	markers = {}
+	num = 0
+	for item in l:
+		locations = [k for k in item['calais_info']['location'] if k['type'] == 'City' or k['type'] == 'ProvinceOrState']
+		locations.sort(reverse = True, key = lambda k: k['relevance'])
+		for p in locations:
+			try:
+				markers[p['name']] = {}
+				markers[p['name']]['position'] = [p['latitude'],p['longitude']]
+				markers[p['name']]['description'] = style + p['name'] + style_end + ': ' + item['title']
+				markers[p['name']]['id'] = rectype + '-' + str(num)
+				item['markerid'] = rectype + '-' + str(num)
+				num += 1
+				break
+			except Exception as e:
+				markers.pop(p['name'])
+				continue
+		
+	response = HttpResponse(json.dumps({'news':l, 'markers':markers}, ensure_ascii = False),"application/json");
 	return response
 
 def basicmap(request):
@@ -98,10 +113,15 @@ def basicmap(request):
 				markers.pop(item['name'])
 				continue
 	sentences = tokenizer.tokenize(request.session['content'])
+	deslimit = 5
 	for key in markers:
+		count = 0
 		for s in sentences:
 			if key in s:
 				markers[key]['description'].append(s.replace(key,style + key + style_end))
+				count += 1
+				if count == deslimit:
+					break
 		markers[key]['description'] = "<br><br>".join(markers[key]['description'])
 	response = HttpResponse(json.dumps(markers, ensure_ascii = False),"application/json");
 	return response
